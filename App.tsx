@@ -8,6 +8,7 @@ import { ItemDetail } from './components/ItemDetail';
 import { PostAdForm } from './components/PostAdForm';
 import { LoginPage } from './components/LoginPage';
 import { fetchListings } from './services/geminiService';
+import { initDB, getListingsFromDB, saveListingToDB } from './services/db';
 import { Listing, ViewState } from './types';
 import { Loader2 } from 'lucide-react';
 
@@ -16,7 +17,7 @@ const App: React.FC = () => {
   const [listings, setListings] = useState<Listing[]>([]);
   const [selectedListing, setSelectedListing] = useState<Listing | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [user, setUser] = useState<{name: string} | null>(null);
   const [searchContext, setSearchContext] = useState<{ query: string; category: string }>({
     query: '',
     category: 'all'
@@ -24,15 +25,47 @@ const App: React.FC = () => {
 
   // Initial load
   useEffect(() => {
-    loadListings('', 'all');
+    const initialize = async () => {
+      try {
+        await initDB();
+        await loadListings('', 'all');
+      } catch (e) {
+        console.error("DB Initialization failed", e);
+      }
+    };
+    initialize();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const loadListings = async (query: string, category: string) => {
     setIsLoading(true);
     try {
-      const data = await fetchListings(query, category);
-      setListings(data);
+      // 1. Fetch local listings from IndexedDB
+      const localListings = await getListingsFromDB();
+      
+      // 2. Filter local listings based on query/category (simple client-side filter)
+      const filteredLocal = localListings.filter(l => {
+        const matchesCategory = category === 'all' || l.category === category;
+        const matchesQuery = !query || l.title.toLowerCase().includes(query.toLowerCase());
+        return matchesCategory && matchesQuery;
+      });
+
+      // 3. If it's a specific search or we have very few local items, fetch AI items
+      // For this demo, we always fetch AI items on HOME to populate the feed initially
+      let aiListings: Listing[] = [];
+      if (category === 'all' && query === '' && localListings.length < 4) {
+          // Initial population
+          aiListings = await fetchListings(query, category);
+      } else if (query !== '') {
+          // Search mode: Get AI suggestions too
+          aiListings = await fetchListings(query, category);
+      }
+
+      // 4. Merge: Local items first (they are "real" user items)
+      // Remove duplicates if any ID collision (unlikely with timestamp IDs)
+      const merged = [...filteredLocal, ...aiListings];
+      
+      setListings(merged);
     } catch (error) {
       console.error("Failed to load listings", error);
     } finally {
@@ -61,14 +94,12 @@ const App: React.FC = () => {
   const handleLogoClick = () => {
     setView(ViewState.HOME);
     setSearchContext({ query: '', category: 'all' });
-    if (listings.length === 0 || searchContext.query !== '') {
-        loadListings('', 'all');
-    }
+    loadListings('', 'all');
     window.scrollTo(0, 0);
   };
 
   const handlePostAdClick = () => {
-    if (!isLoggedIn) {
+    if (!user) {
       setView(ViewState.LOGIN);
     } else {
       setView(ViewState.POST_AD);
@@ -77,13 +108,18 @@ const App: React.FC = () => {
   };
 
   const handleLoginClick = () => {
-    setView(ViewState.LOGIN);
+    if (user) {
+        // Already logged in - maybe logout? For now just go home
+        // In a real app we'd have a menu
+    } else {
+        setView(ViewState.LOGIN);
+    }
     window.scrollTo(0, 0);
   };
 
-  const handleLoginSuccess = () => {
-    setIsLoggedIn(true);
-    setView(ViewState.HOME); // Or redirect to where they wanted to go
+  const handleLoginSuccess = (userName: string) => {
+    setUser({ name: userName });
+    setView(ViewState.HOME); 
     window.scrollTo(0, 0);
   };
 
@@ -95,7 +131,7 @@ const App: React.FC = () => {
     }
   };
 
-  const handleAdSubmit = (partialListing: Partial<Listing>) => {
+  const handleAdSubmit = async (partialListing: Partial<Listing>) => {
     const newListing: Listing = {
       id: `local-${Date.now()}`,
       title: partialListing.title || 'Sans titre',
@@ -105,10 +141,14 @@ const App: React.FC = () => {
       imageUrl: partialListing.imageUrl || '',
       category: partialListing.category || 'autres',
       description: partialListing.description || '',
-      sellerName: partialListing.sellerName || 'Anonyme',
+      sellerName: user?.name || partialListing.sellerName || 'Anonyme',
       isPro: false,
     };
 
+    // Save to DB
+    await saveListingToDB(newListing);
+
+    // Update state
     setListings(prev => [newListing, ...prev]);
     setSelectedListing(newListing);
     setView(ViewState.DETAIL);
@@ -135,6 +175,8 @@ const App: React.FC = () => {
         onLoginClick={handleLoginClick}
       />
       
+      {/* Show logged in user name roughly in header? For now standard header */}
+      
       {view !== ViewState.POST_AD && (
         <CategoryBar onSelectCategory={handleCategorySelect} />
       )}
@@ -157,7 +199,7 @@ const App: React.FC = () => {
                   {isLoading 
                     ? 'Chargement des annonces...' 
                     : view === ViewState.HOME 
-                      ? 'Des annonces à la une' 
+                      ? `Bienvenue ${user ? user.name : ''}` 
                       : `Résultats pour "${searchContext.query || searchContext.category}"`}
                 </h2>
                 {!isLoading && (

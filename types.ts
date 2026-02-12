@@ -11,6 +11,12 @@ export interface Listing {
   isPro: boolean;
 }
 
+export interface User {
+  email: string;
+  passwordHash: string; // Simple storage for demo
+  name: string;
+}
+
 export enum ViewState {
   HOME = 'HOME',
   RESULTS = 'RESULTS',

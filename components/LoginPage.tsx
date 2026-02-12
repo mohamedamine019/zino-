@@ -1,14 +1,17 @@
 import React, { useState } from 'react';
 import { Eye, EyeOff, ArrowLeft, X } from 'lucide-react';
+import { loginUser, registerUser } from '../services/authService';
 
 interface LoginPageProps {
-  onLoginSuccess: () => void;
+  onLoginSuccess: (userName: string) => void;
   onGoHome: () => void;
 }
 
 export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess, onGoHome }) => {
+  const [isRegistering, setIsRegistering] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [name, setName] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
@@ -18,16 +21,27 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess, onGoHome }
     setError('');
     setIsLoading(true);
 
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-
-    if (email && password) {
-      setIsLoading(false);
-      onLoginSuccess();
-    } else {
-      setError('Identifiants incorrects');
+    try {
+      if (isRegistering) {
+        if (!name) throw new Error("Le nom est requis");
+        const user = await registerUser(email, password, name);
+        onLoginSuccess(user.name);
+      } else {
+        const user = await loginUser(email, password);
+        onLoginSuccess(user.name);
+      }
+    } catch (err: any) {
+      setError(err.message || "Une erreur est survenue");
       setIsLoading(false);
     }
+  };
+
+  const toggleMode = () => {
+    setIsRegistering(!isRegistering);
+    setError('');
+    setEmail('');
+    setPassword('');
+    setName('');
   };
 
   return (
@@ -44,7 +58,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess, onGoHome }
         
         <div className="z-10 relative max-w-lg">
           <h2 className="text-4xl font-bold text-gray-900 mb-6">
-            Connectez-vous pour profiter de toutes nos fonctionnalités
+            {isRegistering ? "Rejoignez la communauté" : "Connectez-vous pour profiter de toutes nos fonctionnalités"}
           </h2>
           <ul className="space-y-4 text-lg text-gray-700">
             <li className="flex items-center gap-3">
@@ -89,12 +103,32 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess, onGoHome }
         <div className="flex-1 flex items-center justify-center p-6 md:p-12">
           <div className="w-full max-w-md space-y-8">
             <div className="text-center md:text-left">
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">Bonjour !</h1>
-              <p className="text-gray-600">Connectez-vous pour continuer.</p>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                {isRegistering ? "Créer un compte" : "Bonjour !"}
+              </h1>
+              <p className="text-gray-600">
+                {isRegistering ? "Complétez le formulaire ci-dessous." : "Connectez-vous pour continuer."}
+              </p>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-5">
+                {isRegistering && (
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-1">
+                      Votre nom
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      className="w-full p-4 bg-white border border-gray-400 rounded-xl focus:ring-2 focus:ring-lbc-orange/20 focus:border-lbc-orange outline-none transition-all"
+                      placeholder="Ex: Thomas D."
+                    />
+                  </div>
+                )}
+
                 <div>
                   <label className="block text-sm font-bold text-gray-700 mb-1">
                     Adresse e-mail
@@ -139,18 +173,20 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess, onGoHome }
                 </div>
               </div>
 
-              <div className="flex justify-end">
-                <a href="#" className="text-sm font-semibold text-lbc-blue hover:underline">
-                    Mot de passe oublié ?
-                </a>
-              </div>
+              {!isRegistering && (
+                <div className="flex justify-end">
+                  <a href="#" className="text-sm font-semibold text-lbc-blue hover:underline">
+                      Mot de passe oublié ?
+                  </a>
+                </div>
+              )}
 
               <button
                 type="submit"
                 disabled={isLoading}
                 className="w-full bg-lbc-orange hover:bg-lbc-orangeHover text-white font-bold py-4 px-8 rounded-xl transition-colors shadow-md disabled:opacity-70 flex items-center justify-center gap-2"
               >
-                {isLoading ? 'Connexion en cours...' : 'Se connecter'}
+                {isLoading ? 'Chargement...' : (isRegistering ? "S'inscrire" : 'Se connecter')}
               </button>
             </form>
 
@@ -159,29 +195,16 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess, onGoHome }
                 <div className="w-full border-t border-gray-200"></div>
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-4 bg-white text-gray-500">Ou connectez-vous avec</span>
+                <span className="px-4 bg-white text-gray-500">Ou</span>
               </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-               <button className="flex items-center justify-center gap-2 p-3 border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors font-semibold text-gray-700">
-                 {/* Fake Facebook Icon */}
-                 <span className="text-blue-600 font-bold text-lg">f</span>
-                 Facebook
-               </button>
-               <button className="flex items-center justify-center gap-2 p-3 border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors font-semibold text-gray-700">
-                 {/* Fake Google Icon */}
-                 <span className="text-red-500 font-bold text-lg">G</span>
-                 Google
-               </button>
             </div>
 
             <div className="text-center pt-4">
               <p className="text-gray-600">
-                Pas encore de compte ?{' '}
-                <a href="#" className="text-lbc-blue font-bold hover:underline">
-                  Créer un compte
-                </a>
+                {isRegistering ? "Vous avez déjà un compte ? " : "Pas encore de compte ? "}
+                <button onClick={toggleMode} className="text-lbc-blue font-bold hover:underline">
+                  {isRegistering ? "Se connecter" : "Créer un compte"}
+                </button>
               </p>
             </div>
           </div>

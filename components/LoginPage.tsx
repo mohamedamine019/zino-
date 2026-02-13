@@ -48,12 +48,12 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess, onGoHome }
     <div className="min-h-screen bg-white flex flex-col md:flex-row">
       
       {/* Left Column: Image/Branding (Desktop only) */}
-      <div className="hidden md:flex md:w-1/2 bg-[#fff5f0] flex-col justify-between p-12 relative overflow-hidden">
+      <div className="hidden md:flex md:w-1/2 bg-red-50 flex-col justify-between p-12 relative overflow-hidden">
         <div 
           onClick={onGoHome}
           className="cursor-pointer z-10"
         >
-          <span className="text-lbc-orange font-extrabold text-3xl tracking-tighter">leboncoin</span>
+          <span className="text-lbc-orange font-extrabold text-3xl tracking-tighter">Bi3oo</span>
         </div>
         
         <div className="z-10 relative max-w-lg">
@@ -62,15 +62,15 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess, onGoHome }
           </h2>
           <ul className="space-y-4 text-lg text-gray-700">
             <li className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-orange-100 text-lbc-orange flex items-center justify-center font-bold">1</div>
+              <div className="w-8 h-8 rounded-full bg-red-200 text-lbc-orange flex items-center justify-center font-bold">1</div>
               Gérez vos annonces et vos transactions
             </li>
             <li className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-orange-100 text-lbc-orange flex items-center justify-center font-bold">2</div>
+              <div className="w-8 h-8 rounded-full bg-red-200 text-lbc-orange flex items-center justify-center font-bold">2</div>
               Discutez avec les vendeurs et les acheteurs
             </li>
             <li className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-orange-100 text-lbc-orange flex items-center justify-center font-bold">3</div>
+              <div className="w-8 h-8 rounded-full bg-red-200 text-lbc-orange flex items-center justify-center font-bold">3</div>
               Sauvegardez vos recherches et vos favoris
             </li>
           </ul>
@@ -88,7 +88,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess, onGoHome }
           <button onClick={onGoHome} className="p-2 -ml-2 text-gray-600">
             <ArrowLeft size={24} />
           </button>
-          <span className="text-lbc-orange font-extrabold text-xl tracking-tighter">leboncoin</span>
+          <span className="text-lbc-orange font-extrabold text-xl tracking-tighter">Bi3oo</span>
           <div className="w-8"></div> {/* Spacer for alignment */}
         </div>
 

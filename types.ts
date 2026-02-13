@@ -22,11 +22,19 @@ export enum ViewState {
   RESULTS = 'RESULTS',
   DETAIL = 'DETAIL',
   POST_AD = 'POST_AD',
-  LOGIN = 'LOGIN'
+  LOGIN = 'LOGIN',
+  MESSAGES = 'MESSAGES'
 }
 
 export interface SearchFilters {
   query: string;
   location: string;
   category: string;
+}
+
+export interface ChatMessage {
+  id: string;
+  text: string;
+  sender: 'me' | 'them';
+  timestamp: string;
 }

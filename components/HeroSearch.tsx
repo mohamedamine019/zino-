@@ -15,7 +15,7 @@ export const HeroSearch: React.FC<HeroSearchProps> = ({ onSearch }) => {
   };
 
   return (
-    <div className="bg-gradient-to-r from-[#ffead9] to-[#fff4ec] py-8 px-4 md:py-12 mb-8 rounded-b-[2.5rem] shadow-sm">
+    <div className="bg-gradient-to-r from-red-50 to-white py-8 px-4 md:py-12 mb-8 rounded-b-[2.5rem] shadow-sm">
       <div className="max-w-4xl mx-auto text-center space-y-6">
         <h1 className="text-2xl md:text-4xl font-extrabold text-lbc-text">
           Des millions de petites annonces et autant d’occasions de se faire plaisir

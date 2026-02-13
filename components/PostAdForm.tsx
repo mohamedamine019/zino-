@@ -124,7 +124,7 @@ export const PostAdForm: React.FC<PostAdFormProps> = ({ onSubmit, onCancel }) =>
                  onClick={() => setFormData(prev => ({ ...prev, category: cat.toLowerCase() }))}
                  className={`p-4 rounded-xl border-2 text-left transition-all font-bold ${
                    formData.category === cat.toLowerCase()
-                     ? 'border-lbc-orange bg-orange-50 text-lbc-orange'
+                     ? 'border-lbc-orange bg-red-50 text-lbc-orange'
                      : 'border-gray-100 bg-white hover:border-gray-200 text-gray-700'
                  }`}
                >
@@ -310,7 +310,7 @@ export const PostAdForm: React.FC<PostAdFormProps> = ({ onSubmit, onCancel }) =>
                 <button
                   type="submit"
                   disabled={!validateStep(3) || loading}
-                  className="bg-lbc-orange hover:bg-lbc-orangeHover text-white font-bold py-3 px-8 rounded-full transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-lg shadow-orange-200"
+                  className="bg-lbc-orange hover:bg-lbc-orangeHover text-white font-bold py-3 px-8 rounded-full transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-lg shadow-red-200"
                 >
                   {loading ? (
                     <>Publication...</>

@@ -28,7 +28,7 @@ export const CategoryBar: React.FC<CategoryBarProps> = ({ onSelectCategory }) =>
               onClick={() => onSelectCategory(cat.id)}
               className="flex flex-col items-center gap-2 min-w-[80px] group cursor-pointer"
             >
-              <div className="w-12 h-12 rounded-full bg-lbc-grey group-hover:bg-orange-50 flex items-center justify-center transition-colors text-gray-700 group-hover:text-lbc-orange">
+              <div className="w-12 h-12 rounded-full bg-lbc-grey group-hover:bg-red-50 flex items-center justify-center transition-colors text-gray-700 group-hover:text-lbc-orange">
                 <cat.icon size={24} />
               </div>
               <span className="text-sm text-gray-700 font-medium group-hover:text-lbc-orange whitespace-nowrap">

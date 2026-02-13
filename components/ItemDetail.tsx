@@ -1,13 +1,14 @@
 import React from 'react';
 import { Listing } from '../types';
-import { MapPin, Calendar, ArrowLeft, Share2, Heart, Flag } from 'lucide-react';
+import { MapPin, ArrowLeft, Share2, Heart, Flag } from 'lucide-react';
 
 interface ItemDetailProps {
   listing: Listing;
   onBack: () => void;
+  onContact: () => void;
 }
 
-export const ItemDetail: React.FC<ItemDetailProps> = ({ listing, onBack }) => {
+export const ItemDetail: React.FC<ItemDetailProps> = ({ listing, onBack, onContact }) => {
   return (
     <div className="max-w-4xl mx-auto px-4 py-6">
       <button 
@@ -86,12 +87,15 @@ export const ItemDetail: React.FC<ItemDetailProps> = ({ listing, onBack }) => {
             <button className="w-full bg-lbc-orange hover:bg-lbc-orangeHover text-white font-bold py-3 px-4 rounded-xl mb-3 transition-colors">
               Acheter
             </button>
-            <button className="w-full bg-lbc-blue hover:bg-[#2b4ba8] text-white font-bold py-3 px-4 rounded-xl transition-colors mb-4">
+            <button 
+              onClick={onContact}
+              className="w-full bg-lbc-blue hover:bg-[#2b4ba8] text-white font-bold py-3 px-4 rounded-xl transition-colors mb-4"
+            >
               Envoyer un message
             </button>
             
             <div className="text-xs text-gray-500 text-center">
-              Gérez votre achat en toute sécurité avec le paiement sécurisé leboncoin.
+              Gérez votre achat en toute sécurité avec le paiement sécurisé Bi3oo.
             </div>
            </div>
 

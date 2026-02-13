@@ -7,6 +7,7 @@ import { Footer } from './components/Footer';
 import { ItemDetail } from './components/ItemDetail';
 import { PostAdForm } from './components/PostAdForm';
 import { LoginPage } from './components/LoginPage';
+import { MessageInterface } from './components/MessageInterface';
 import { fetchListings } from './services/geminiService';
 import { initDB, getListingsFromDB, saveListingToDB } from './services/db';
 import { Listing, ViewState } from './types';
@@ -107,6 +108,15 @@ const App: React.FC = () => {
     window.scrollTo(0, 0);
   };
 
+  const handleContactSeller = () => {
+    if (!user) {
+      setView(ViewState.LOGIN);
+    } else {
+      setView(ViewState.MESSAGES);
+    }
+    window.scrollTo(0, 0);
+  };
+
   const handleLoginClick = () => {
     if (user) {
         // Already logged in - maybe logout? For now just go home
@@ -119,13 +129,20 @@ const App: React.FC = () => {
 
   const handleLoginSuccess = (userName: string) => {
     setUser({ name: userName });
-    setView(ViewState.HOME); 
+    // If we were on detail page, go back there, otherwise home
+    if (selectedListing && view !== ViewState.HOME) {
+        setView(ViewState.DETAIL);
+    } else {
+        setView(ViewState.HOME); 
+    }
     window.scrollTo(0, 0);
   };
 
   const handleBack = () => {
     if (view === ViewState.DETAIL) {
       setView(ViewState.RESULTS); 
+    } else if (view === ViewState.MESSAGES) {
+      setView(ViewState.DETAIL);
     } else {
       setView(ViewState.HOME);
     }
@@ -167,6 +184,20 @@ const App: React.FC = () => {
     );
   }
 
+  // Full Page Message View
+  if (view === ViewState.MESSAGES && selectedListing) {
+    return (
+      <div className="font-sans text-[#1a1a1a]">
+         <Header 
+          onLogoClick={handleLogoClick} 
+          onPostAdClick={handlePostAdClick} 
+          onLoginClick={handleLoginClick}
+        />
+        <MessageInterface listing={selectedListing} onBack={handleBack} />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex flex-col font-sans text-[#1a1a1a]">
       <Header 
@@ -174,8 +205,6 @@ const App: React.FC = () => {
         onPostAdClick={handlePostAdClick} 
         onLoginClick={handleLoginClick}
       />
-      
-      {/* Show logged in user name roughly in header? For now standard header */}
       
       {view !== ViewState.POST_AD && (
         <CategoryBar onSelectCategory={handleCategorySelect} />
@@ -188,7 +217,11 @@ const App: React.FC = () => {
             onCancel={() => setView(ViewState.HOME)} 
           />
         ) : view === ViewState.DETAIL && selectedListing ? (
-          <ItemDetail listing={selectedListing} onBack={handleBack} />
+          <ItemDetail 
+             listing={selectedListing} 
+             onBack={handleBack} 
+             onContact={handleContactSeller}
+          />
         ) : (
           <>
             <HeroSearch onSearch={handleSearch} />

@@ -13,7 +13,7 @@ const getImageUrl = (id: string, category: string) => {
 export const fetchListings = async (query: string, category: string = "all"): Promise<Listing[]> => {
   try {
     const prompt = `
-      Generate 8 realistic classified ad listings for a French marketplace site like LeBoncoin.
+      Generate 8 realistic classified ad listings for a French marketplace site like Bi3oo.
       
       Context:
       - Search Query: "${query || 'items récents'}"
@@ -94,5 +94,30 @@ export const fetchListings = async (query: string, category: string = "all"): Pr
         isPro: false
       }
     ];
+  }
+};
+
+export const generateChatReply = async (listing: Listing, userMessage: string): Promise<string> => {
+  try {
+    const prompt = `
+      You are playing the role of a seller on a French classifieds site called Bi3oo.
+      You are selling: "${listing.title}" for ${listing.price}€.
+      Description: "${listing.description}".
+      
+      The buyer just sent you this message: "${userMessage}"
+      
+      Write a short, realistic, and polite response in French. 
+      If they ask if it's available, say yes.
+      Keep it brief (1-2 sentences).
+    `;
+
+    const response = await ai.models.generateContent({
+      model: "gemini-3-flash-preview",
+      contents: prompt,
+    });
+
+    return response.text || "Bonjour, oui c'est toujours disponible !";
+  } catch (e) {
+    return "Bonjour, je suis disponible pour en discuter.";
   }
 };

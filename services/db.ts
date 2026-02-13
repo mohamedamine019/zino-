@@ -74,7 +74,7 @@ export const saveListingToDB = async (listing: Listing): Promise<void> => {
 
 export const getListingsFromDB = async (): Promise<Listing[]> => {
   // SQL Select
-  const results = alasql('SELECT * FROM listings');
+  const results = alasql('SELECT * FROM listings') as Listing[];
   // Return reversed to show newest first
   return results.reverse();
 };
@@ -87,7 +87,7 @@ export const saveUserToDB = async (user: User): Promise<void> => {
 
 export const getUserFromDB = async (email: string): Promise<User | undefined> => {
   // SQL Select with WHERE clause
-  const results = alasql('SELECT * FROM users WHERE email = ?', [email]);
+  const results = alasql('SELECT * FROM users WHERE email = ?', [email]) as User[];
   return results.length > 0 ? results[0] : undefined;
 };
 
